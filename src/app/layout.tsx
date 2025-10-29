@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Roboto_Condensed } from "next/font/google";
 import "./globals.css";
-import SessionProvider from "./components/SessionProvider";
-import { getServerSession } from "next-auth";
-import { get } from "http";
+import AuthProvider from "./components/SessionProvider";
+import Navbar from "./components/Navbar";
+import { auth } from "../app/libs/auth";
+import { Noto_Sans_Thai } from "next/font/google";
 
-const roboto = Roboto_Condensed({
+const Noto_sans = Noto_Sans_Thai({
+  style: ["normal"],
   subsets: ["latin"],
-  weight: ["300", "400", "700"],
+  weight: ["400", "700"],
 });
-
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,16 +20,15 @@ export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-  
-}>) 
-{
-  const session = await getServerSession();
+}>) {
+  const session = await auth();
   return (
     <html lang="en">
-      <body
-        className={`${roboto.className}`}
-      >
-        <SessionProvider session={session}>{children}</SessionProvider>
+      <body className={Noto_sans.className}>
+        <AuthProvider session={session} key={session?.expires}>
+          <Navbar />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

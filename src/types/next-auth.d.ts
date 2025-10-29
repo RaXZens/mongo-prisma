@@ -14,6 +14,11 @@ declare module "next-auth" {
     role?: string;
 
   }
+  export type SessionStrategy = "jwt" | "database";
+
+  export interface getServerSession {
+    strategy?: SessionStrategy;
+  }
 
 }
 

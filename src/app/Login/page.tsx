@@ -1,26 +1,29 @@
 "use client";
+import { useFormStatus } from "react-dom";
+import type { LoginState } from "../controllers/authController";
+import { login } from "../actions/auth.action";
+import { useActionState } from "react";
 
-import { set } from "mongoose";
-import { useState } from "react";
+function LoginButton() {
+  const { pending } = useFormStatus(); // hook นี้จะบอกว่าฟอร์มกำลังถูกส่งหรือไม่
 
-export default function RegisterPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  return (
+    <button
+      type="submit"
+      aria-disabled={pending}
+      className="border rounded-full  px-4 cursor-pointer"
+      style={{ backgroundColor: "#192D5E", color: "#FFFFFF" }}
+    >
+      {pending ? "Logging in..." : "ยืนยัน"}
+    </button>
+  );
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
-    });
-
-    const data = await res.json();
-    setMessage(data.message || data.error);
-  };
+export default function SignIn() {
+  // สถานะเริ่มต้นของฟอร์ม
+  const initialState: LoginState | undefined = undefined;
+  // เชื่อมฟอร์มกับ Server Action ด้วย useFormState
+  const [state, formAction] = useActionState(login, initialState);
 
   return (
     <div className="flex justify-center p-5">
@@ -31,17 +34,7 @@ export default function RegisterPage() {
         <h1 className="text-center font-semisold text-2xl mb-4">
           เข้าสู่ระบบ/สมัครสมาชิก
         </h1>
-        <form onSubmit={handleSubmit} className="flex flex-col items-center gap-3">
-          <div className="">
-            <input
-              type="name"
-              placeholder="ชือ"
-              name="name"
-              className="border-1 rounded-md ps-3"
-              style={{ borderColor: "#192D5E" }}
-              onChange={(e)=> setName(e.target.value)}
-            />
-          </div>
+        <form action={formAction} className="flex flex-col items-center gap-3">
           <div className="">
             <input
               type="email"
@@ -49,7 +42,6 @@ export default function RegisterPage() {
               name="email"
               className="border-1 rounded-md ps-3"
               style={{ borderColor: "#192D5E" }}
-              onChange={(e)=> setEmail(e.target.value)}
             />
           </div>
           <div className="">
@@ -59,21 +51,22 @@ export default function RegisterPage() {
               name="password"
               className="border-1 rounded-md ps-3"
               style={{ borderColor: "#192D5E" }}
-              onChange={(e)=> setPassword(e.target.value)}
             />
           </div>
           <div className="mt-2 flex justify-center gap-5 items-center">
             <h1 className="font-semisold text-2xl">ลืมรหัสผ่าน?</h1>
 
+            <LoginButton/>
           </div>
-          {message && <p style={{ color: "red" }}>{message}</p>}
+          {state?.error && <p style={{ color: "red" }}>{state.error}</p>}
           <a
-            href={"/Login"}
+            href={"/Register"}
             className="border rounded-full w-1/2 text-center"
             style={{ borderColor: "#192D5E" }}
           >
-            เข้าสู่ระบบ
+            สมัครสมาชิก
           </a>
+          
         </form>
         <div className="flex justify-center mt-2"></div>
       </div>
